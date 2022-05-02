@@ -1,5 +1,5 @@
 #include <arm_neon.h>
-#include <cblas.h>
+// #include <cblas.h>
 
 #include <math.h>
 #include <stdio.h>
@@ -183,7 +183,7 @@ void sgemm_kernel_12x8(float *Apanel, float *Bpanel, float *Cpanel, int M, int N
 		"movi v31.4s, #0x0\n"
 		
 		// if k euqal to zero, jump forwards (after) label 4
-		"cbz %[k], 4f\n"
+		"cbz %w[k], 4f\n"
 
 		// loop
 		"1:\n"
@@ -272,7 +272,7 @@ void sgemm_kernel_12x8(float *Apanel, float *Bpanel, float *Cpanel, int M, int N
 		"fmla v25.4s, v4.4s, v5.s[1]\n"
 		"fmla v26.4s, v4.4s, v5.s[2]\n"
 		"fmla v27.4s, v4.4s, v5.s[3]\n"
-		"subs %[k], %[k], #1\n"		 // k = k - 1;
+		"subs %w[k], %w[k], #1\n"		 // k = k - 1;
 
 		// b2 * a1a
 		"fmla v28.4s, v4.4s, v6.s[0]\n"
@@ -384,10 +384,11 @@ void sgemm_kernel_12x8(float *Apanel, float *Bpanel, float *Cpanel, int M, int N
 		  [a_ptr] "+r" (a_ptr),
 		  [b_ptr] "+r" (b_ptr),
 		  [c_ptr] "+r" (c_ptr)
-		: "0" (k),
-		  "1" (a_ptr),
-		  "2" (b_ptr),
-		  "3" (c_ptr)
+		:
+		// : "0" (k),
+		//   "1" (a_ptr),
+		//   "2" (b_ptr),
+		//   "3" (c_ptr)
 		: "v0", "v1", "v2", "v3",
 		  "v4", "v5", "v6", "v7",
 		  "v8", "v9", "v10", "v11",
@@ -408,7 +409,7 @@ int main(int argc, char** argv)
 	if (argc == 2)
 		nIter = atoi(argv[1]);
 
-    openblas_set_num_threads(1);
+    // openblas_set_num_threads(1);
 
 	// variables
     float *A, *B, *C, *Cblas, *C1;
@@ -442,19 +443,6 @@ int main(int argc, char** argv)
         printf("12x8 kernel matrix(%d,%d,%d), flops: %fGFLOPS, time %f sec!\n", M, N, K, gflps, t);
     }
 
-    // cblas
-    {
-        gettimeofday(&start, NULL);
-        // execute for loop
-        for (int i = 0; i < nIter; i++) {
-            cblas_sgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, M, N, K, 1.0, A, M, B, K, 0.0, Cblas, M);
-        }
-        gettimeofday(&stop, NULL);
-        double t = (double)(stop.tv_sec-start.tv_sec) + (stop.tv_usec-start.tv_usec) * 1e-6; // sec
-        t /= nIter;	// average time
-        double gflps = 2.0 * M * N * K * 1e-9 / t; // gflops
-        printf("cblas matrix(%d,%d,%d), flops: %fGFLOPS, time %f sec!\n", M, N, K, gflps, t);
-    }
 
 	// element-wise
 	matrixMulCPU(C1, A, B, M, N, K);
