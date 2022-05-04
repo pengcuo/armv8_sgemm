@@ -16,9 +16,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 # file(GLOB_RECURSE SOURCE_FILES src/*.cpp)
 # add_library(integral_meanfilter ${SOURCE_FILES})
 
-set(TEST_FILES sgemm.cpp)
+set(TEST_FILES quadrbits_gemm.cpp)
 
-add_executable(test_armv8_gemm ${TEST_FILES})
+add_executable(test_armv8_quadrbits_gemm ${TEST_FILES})
 # target_link_libraries(test_integral_meanfilter 
 #                         integral_meanfilter
 #                         opencv_java4
