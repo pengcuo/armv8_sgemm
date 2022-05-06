@@ -354,8 +354,8 @@ void a64_sgemm_asimd_8x12_a53(const float *Apanel, const float *Bpanel, float *C
 }
 
 
-// 12 : nr
-// 16 : mr
+// 12 : mr
+// 16 : nr
 void a64_quadr_bits_gemm_asimd_12x16_a53(const short *Apanel, const short *Bpanel, short *Cpanel, int ablocks, int bblocks, int K) {
     const short *a_ptr = Apanel;
     short *c_ptr = Cpanel;
